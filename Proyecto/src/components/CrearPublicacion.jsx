@@ -3,6 +3,7 @@ import { db, auth } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import EmojiPicker from 'emoji-picker-react';
 import emailjs from 'emailjs-com';
+import { containsInappropriateContent } from '../moderation';
 
 export default function CrearPublicacion() {
   const [text, setText] = useState('');
@@ -26,6 +27,11 @@ export default function CrearPublicacion() {
 
     if (!text.trim() && !imageUrl.trim()) {
       alert('Debes escribir algo o incluir una imagen.');
+      return;
+    }
+
+    if (containsInappropriateContent(text)) {
+      alert('Se detectó contenido inapropiado.');
       return;
     }
 
