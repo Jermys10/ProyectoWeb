@@ -31,6 +31,7 @@ export default function SignUp() {
         apellido,
         email: user.email,
         role: "user",
+        suspended: false,
         createdAt: new Date(),
       });
       sendWelcomeEmail();
