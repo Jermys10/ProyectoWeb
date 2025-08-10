@@ -20,6 +20,12 @@ export default function Login() {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const data = userDoc.data();
 
+      if (data?.suspended) {
+        await auth.signOut();
+        setError("Tu cuenta ha sido suspendida.");
+        return;
+      }
+
       if (data?.role === "admin") {
         navigate("/admin");
       } else {
@@ -41,12 +47,19 @@ export default function Login() {
         await setDoc(doc(db, "users", user.uid), {
           email: user.email,
           role: "user",
+          suspended: false,
           createdAt: new Date(),
         });
         userDoc = await getDoc(doc(db, "users", user.uid));
       }
 
       const data = userDoc.data();
+
+      if (data?.suspended) {
+        await auth.signOut();
+        setError("Tu cuenta ha sido suspendida.");
+        return;
+      }
 
       if (data?.role === "admin") {
         navigate("/admin");
