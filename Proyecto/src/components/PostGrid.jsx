@@ -12,9 +12,11 @@ import {
   increment,
   addDoc,
   serverTimestamp,
+  deleteDoc,
 } from 'firebase/firestore';
 import PostDetail from './PostDetail';
 import Topbar from './Topbar';
+import { containsInappropriateContent } from '../moderation';
 
 const PostGrid = () => {
   const [posts, setPosts] = useState([]);
@@ -26,10 +28,15 @@ const PostGrid = () => {
     try {
       const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
       const querySnapshot = await getDocs(q);
-      const postList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const postList = [];
+      for (const docSnap of querySnapshot.docs) {
+        const data = { id: docSnap.id, ...docSnap.data() };
+        if (containsInappropriateContent(data.text)) {
+          await deleteDoc(doc(db, 'posts', docSnap.id));
+          continue;
+        }
+        postList.push(data);
+      }
       setPosts(postList);
     } catch (error) {
       console.error('Error al obtener publicaciones:', error);

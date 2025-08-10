@@ -5,6 +5,7 @@ import { updateProfile } from "firebase/auth";
 import { Form, Button, Image, Spinner, Row, Col } from "react-bootstrap";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { containsInappropriateContent } from "../moderation";
 
 export default function Perfil() {
   const [user, setUser] = useState(null);
@@ -89,6 +90,11 @@ export default function Perfil() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
+
+    if (containsInappropriateContent(bio)) {
+      alert("Se detectó contenido inapropiado en la biografía.");
+      return;
+    }
 
     const formData = {
       bio,

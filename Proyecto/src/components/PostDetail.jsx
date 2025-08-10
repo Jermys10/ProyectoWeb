@@ -42,6 +42,47 @@ const PostDetail = ({ show, handleClose, post, onLike, onShare }) => {
     setShareComment("");
   };
 
+  const handleReportPost = async () => {
+    if (!auth.currentUser) {
+      alert('Debes iniciar sesión para reportar.');
+      return;
+    }
+    try {
+      await addDoc(collection(db, 'reports'), {
+        type: 'post',
+        targetId: post.id,
+        reporterId: auth.currentUser.uid,
+        reporterName: auth.currentUser.displayName || 'Anónimo',
+        reportedUserId: post.userId,
+        createdAt: serverTimestamp(),
+      });
+      alert('Publicación reportada.');
+    } catch (error) {
+      console.error('Error al reportar publicación:', error);
+      alert('Error al reportar publicación.');
+    }
+  };
+
+  const handleReportUser = async () => {
+    if (!auth.currentUser) {
+      alert('Debes iniciar sesión para reportar.');
+      return;
+    }
+    try {
+      await addDoc(collection(db, 'reports'), {
+        type: 'user',
+        targetId: post.userId,
+        reporterId: auth.currentUser.uid,
+        reporterName: auth.currentUser.displayName || 'Anónimo',
+        createdAt: serverTimestamp(),
+      });
+      alert('Usuario reportado.');
+    } catch (error) {
+      console.error('Error al reportar usuario:', error);
+      alert('Error al reportar usuario.');
+    }
+  };
+
   
  const handleLike = async (post, liked) => {
   const user = auth.currentUser;
@@ -187,6 +228,15 @@ const PostDetail = ({ show, handleClose, post, onLike, onShare }) => {
         {copied && (
           <Alert variant="success">¡Texto copiado al portapapeles!</Alert>
         )}
+
+        <div className="d-flex justify-content-end gap-2 mt-3">
+          <Button variant="warning" size="sm" onClick={handleReportPost}>
+            Reportar publicación
+          </Button>
+          <Button variant="warning" size="sm" onClick={handleReportUser}>
+            Reportar usuario
+          </Button>
+        </div>
       </Modal.Body>
     </Modal>
   );
