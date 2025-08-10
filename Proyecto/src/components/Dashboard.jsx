@@ -1,5 +1,7 @@
+// src/components/Dashboard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
 import {
   collection,
   deleteDoc,
@@ -29,8 +31,9 @@ export default function Dashboard() {
     fetchPosts();
   }, []);
 
-  const handleLogout = () => {
-    auth.signOut().then(() => navigate("/login"));
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate("/login");
   };
 
   const handleToggleSuspend = async (user) => {
@@ -51,7 +54,6 @@ export default function Dashboard() {
 
   return (
     <div className="d-flex vh-100 flex-column">
-
       {/* Navbar superior */}
       <nav className="navbar navbar-dark bg-primary px-4">
         <span className="navbar-brand mb-0 h1">Panel de Administración</span>
@@ -61,7 +63,6 @@ export default function Dashboard() {
       </nav>
 
       <div className="d-flex flex-grow-1">
-
         {/* Sidebar */}
         <nav
           className="bg-light border-end d-none d-md-flex flex-column p-3"
@@ -69,29 +70,19 @@ export default function Dashboard() {
         >
           <ul className="nav nav-pills flex-column mb-auto">
             <li className="nav-item mb-2">
-              <a href="#resumen" className="nav-link link-dark">
-                Resumen
-              </a>
+              <a href="#resumen" className="nav-link link-dark">Resumen</a>
             </li>
             <li className="nav-item mb-2">
-              <a href="#graficos" className="nav-link link-dark">
-                Gráficos
-              </a>
+              <a href="#graficos" className="nav-link link-dark">Gráficos</a>
             </li>
             <li className="nav-item mb-2">
-              <a href="#usuarios" className="nav-link link-dark">
-                Usuarios
-              </a>
+              <a href="#usuarios" className="nav-link link-dark">Usuarios</a>
             </li>
             <li className="nav-item mb-2">
-              <a href="#posts" className="nav-link link-dark">
-                Publicaciones
-              </a>
+              <a href="#posts" className="nav-link link-dark">Publicaciones</a>
             </li>
             <li className="nav-item mb-2">
-              <a href="#configuracion" className="nav-link link-dark">
-                Configuración
-              </a>
+              <a href="#configuracion" className="nav-link link-dark">Configuración</a>
             </li>
           </ul>
         </nav>
@@ -106,7 +97,7 @@ export default function Dashboard() {
                 <div className="card text-white bg-primary">
                   <div className="card-body">
                     <h5 className="card-title">Usuarios Registrados</h5>
-                    <p className="card-text display-4">120</p>
+                    <p className="card-text display-4">{users.length}</p>
                   </div>
                 </div>
               </div>
@@ -154,13 +145,11 @@ export default function Dashboard() {
                 <tbody>
                   {users.map((u) => (
                     <tr key={u.id}>
-                      <td>{`${u.nombre || ""} ${u.apellido || ""}`}</td>
+                      <td>{`${u.nombre || ""} ${u.apellido || ""}`.trim()}</td>
                       <td>{u.email}</td>
                       <td>{u.role}</td>
                       <td>
-                        <span
-                          className={`badge ${u.suspended ? "bg-danger" : "bg-success"}`}
-                        >
+                        <span className={`badge ${u.suspended ? "bg-danger" : "bg-success"}`}>
                           {u.suspended ? "Suspendido" : "Activo"}
                         </span>
                       </td>
@@ -195,7 +184,7 @@ export default function Dashboard() {
                   {posts.map((p) => (
                     <tr key={p.id}>
                       <td>{p.userName || "Usuario anónimo"}</td>
-                      <td>{p.text?.slice(0, 50)}</td>
+                      <td>{(p.text || p.content || "").slice(0, 50)}</td>
                       <td>
                         <button
                           className="btn btn-sm btn-danger"
